@@ -1,0 +1,11 @@
+__pycache__
+environment
+
+*.json
+
+Attachments/*
+DataFiles/*
+logs/*
+EmailStatus/*
+main.py
+settings.py

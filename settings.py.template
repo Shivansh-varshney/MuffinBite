@@ -1,0 +1,30 @@
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+TOKEN_PATH = BASE_DIR/'token.json'
+CLIENT_SECRET_FILE = BASE_DIR/'credentials.json'
+
+# Turn TEST_MODE to False to send emails to real address
+# and Turn it to False to send emails to fake or test email address
+TEST_MODE = True
+
+ATTACHMENTS = [
+    filename for filename in os.listdir(BASE_DIR/ 'Attachments')
+]
+
+# VARIABLES is a list columns names from your data files in DataFiles folder
+# Please pay attention that all the files should have all the columns you mention here
+VARIABLES = ['templateVariable1', 'templateVariable2']
+
+if not TEST_MODE:
+    DATA_FILES = [
+    filename for filename in os.listdir(BASE_DIR/ 'DataFiles')
+    if filename.lower().endswith('.csv', '.xls', '.xlsx')
+]
+else:
+    DATA_FILES = [
+    filename for filename in os.listdir(BASE_DIR/ 'DataFiles')
+    if filename.lower().startswith('test')
+]

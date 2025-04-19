@@ -1,0 +1,29 @@
+import os
+from Sender.autoemail import AutoEmail
+
+from settings import *
+
+if __name__ == "__main__":
+
+    subject = "your subject for email here"
+    from_ = "your email address here"
+
+    body_content = """
+        Body content here, which uses template variables one {} here
+        and another {} here.
+    """
+
+    has_HTML = True
+    html_content = """
+        <html>
+        <body>
+            <h1>A system generated email for testing.</h1>
+            <strong>First variable: {}</strong><br>
+            <strong>Second variable: {}</strong>
+        </body>
+        </html>
+    """
+
+    email = AutoEmail(DATA_FILES)
+    email.send_bulk_email(has_HTML=has_HTML, html_content=html_content,
+    body_content=body_content, subject=subject, from_=from_)
