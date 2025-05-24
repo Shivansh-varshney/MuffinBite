@@ -10,7 +10,7 @@ from settings import TOKEN_PATH, CLIENT_SECRET_FILE
 SCOPES = {
     "ACTION_COMPOSE": "https://www.googleapis.com/auth/gmail.addons.current.action.compose",
     "MESSAGE_ACTION": "https://www.googleapis.com/auth/gmail.addons.current.message.action",
-    "MESSAGE_METDATA": "https://www.googleapis.com/auth/gmail.addons.current.message.metadata",
+    "MESSAGE_METADATA": "https://www.googleapis.com/auth/gmail.addons.current.message.metadata",
     "MESSAGE_READONLY": "https://www.googleapis.com/auth/gmail.addons.current.message.readonly",
     "LABELS": "https://www.googleapis.com/auth/gmail.labels",
     "SEND": "https://www.googleapis.com/auth/gmail.send",

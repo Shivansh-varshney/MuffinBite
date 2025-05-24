@@ -1,11 +1,10 @@
 import os
-import subprocess
 import sys
+import subprocess
 from pathlib import Path
 
-# Configuration
 env_dir = Path("environment")
-dirs_to_create = ["Attachments", "DataFiles", "EmailStatus", "logs"]
+dirs_to_create = ["Attachments", "DataFiles", "EmailStatus", "Logs"]
 requirements_file = "requirements.txt"
 
 def log_error(msg):
@@ -13,22 +12,29 @@ def log_error(msg):
 
 def create_virtualenv():
     if not env_dir.exists():
-        print("Creating virtual environment...")
+        print("\nCreating virtual environment...")
         subprocess.check_call([sys.executable, "-m", "venv", str(env_dir)])
     else:
         print("Virtual environment already exists.")
 
 def install_requirements():
-    print("Installing dependencies...")
-    # Use venv-specific pip
-    pip_path = env_dir / ("Scripts" if os.name == "nt" else "bin") / "pip"
-    subprocess.check_call([str(pip_path), "install", "-r", requirements_file])
+    print("\nInstalling dependencies...")
 
+    with open(requirements_file) as f:
+        packages = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+    pip_path = env_dir / ("Scripts" if os.name == "nt" else "bin") / "pip"
+    subprocess.check_call([str(pip_path), "install", "-r", requirements_file],
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
+    
 def create_directories():
+    print("\nCreating directories...\n")
     for dir_name in dirs_to_create:
         path = Path(dir_name)
         path.mkdir(exist_ok=True)
-        print(f"Created or found directory: {path}")
+        print(f"Created: {path}")
+    print()
 
 def main():
     try:
@@ -36,9 +42,9 @@ def main():
         install_requirements()
         create_directories()
 
-        print("\n✅ Setup completed successfully.")
+        print("✅ Setup completed successfully.")
         print(f"\n➡️  To activate the virtual environment, run:")
-        print(f"   {'environment\\Scripts\\activate' if os.name == 'nt' else 'source environment/bin/activate'}\n")
+        print(f"   {r'environment\\Scripts\\activate' if os.name == 'nt' else 'source environment/bin/activate'}\n")
 
     except subprocess.CalledProcessError as e:
         log_error(f"Command failed: {e}")
