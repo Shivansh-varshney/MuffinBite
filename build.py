@@ -44,7 +44,8 @@ def main():
 
         print("✅ Setup completed successfully.")
         print(f"\n➡️  To activate the virtual environment, run:")
-        print(f"   {r'environment\\Scripts\\activate' if os.name == 'nt' else 'source environment/bin/activate'}\n")
+        print(r"        for Windows: 'environment\\Scripts\\activate'")
+        print(r"        for Linux: 'source environment/bin/activate'")
 
     except subprocess.CalledProcessError as e:
         log_error(f"Command failed: {e}")
