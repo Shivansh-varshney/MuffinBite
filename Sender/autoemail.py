@@ -118,14 +118,7 @@ class AutoEmail():
                     message.set_content(body_content)
 
                     if kwargs['has_HTML']:
-                        tracking_email = item['Email']
-                        encoded = base64.urlsafe_b64encode(tracking_email.encode()).decode()
-
-                        # emltrk generates tracking based on encoded emails
-                        tracking_pixel_url = f"https://emltrk.com/{encoded}"
-                        tracking_pixel = f'<img src="{tracking_pixel_url}" width="1" height="1" style="display:none;">'
-
-                        html_content = self.format_email_body(kwargs['html_content'], item) + tracking_pixel
+                        html_content = self.format_email_body(kwargs['html_content'], item)
                         message.add_alternative(html_content, subtype='html')
 
                     message = self.attach(message)
