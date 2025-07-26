@@ -3,21 +3,23 @@ import time
 import base64
 import mimetypes
 import pandas as pd
+import sys
 from pathlib import Path
 from datetime import date
 from email.message import EmailMessage
-from colorama import Fore, Style
+from colorama import init, Fore, Style
 
 from .googleConfiguration import Configure
 from .logger_config import logger
-from settings import BASE_DIR, VARIABLES, ATTACHMENTS
+from settings import BASE_DIR, ATTACHMENTS
+
+init(autoreset=True)
 
 class AutoEmail():
     
-    def __init__(self, data_files, variables=VARIABLES, attachments = ATTACHMENTS):
+    def __init__(self, data_files, attachments = ATTACHMENTS):
         self.data_files = data_files
         self.attachments = attachments
-        self.variables = variables
 
     def send_single_mail(self, message):
 
@@ -42,21 +44,22 @@ class AutoEmail():
                 writer = csv.writer(file)
                 for key, value in data.items():
                     row = [
-                        date.today(),
-                        time.strftime("%H:%M:%S", time.localtime())
+                        value[0],
+                        f" {date.today()}",
+                        f" {time.strftime("%I:%M:%S %p", time.localtime())}"
                     ]
-                    row.append(value[0])
                     writer.writerow(row)
 
         except Exception as error:
             logger.error(f"Could not write to {filePath} due to: {error}", exc_info=True)
 
-    def format_email_body(self, body_content, item):
-
-        if len(self.variables):
-            values = [item.get(var, '') for var in self.variables]
-            return body_content.format(*values)
-        return body_content
+    def format_email_body(self, body_content, row):
+        try:
+            return body_content.format(**row)
+        except KeyError as e:
+            missing_key = e.args[0]
+            print(Fore.RED + f"     Error: column '{missing_key}' is missing in the data\n" + Style.RESET_ALL)
+            sys.exit(1)
 
     def attach(self, message):
         #if we want to attach something
@@ -122,6 +125,9 @@ class AutoEmail():
                         message.add_alternative(html_content, subtype='html')
 
                     message = self.attach(message)
+                    if not item['Email'] or '@' not in item['Email']:
+                        print(Fore.RED +f"      Invalid email: {item['Email']}\n" + Style.RESET_ALL)
+                        sys.exit(1)
                     message['to'] = item['Email']
 
 
@@ -130,9 +136,13 @@ class AutoEmail():
 
                     if email_sent:
                         successful[index] = [item["Email"]]
+                        print(Fore.GREEN+'      sent to: '+Fore.YELLOW+item["Email"])
+                        print(Style.RESET_ALL)
                         del message
                     elif not email_sent:
                         writeind[index] = [error]
+                        print(Fore.RED+'      sent to: '+Fore.YELLOW+item["Email"])
+                        print(Style.RESET_ALL)
                         del message
                     else:
                         logger.error("Please report about the error on issues tab of github.")

@@ -14,10 +14,6 @@ ATTACHMENTS = [
     filename for filename in os.listdir(BASE_DIR/ 'Attachments')
 ]
 
-# VARIABLES is a list columns names from your data files in DataFiles folder
-# Please pay attention that all the files should have all the columns you mention here
-VARIABLES = ['templateVariable1', 'templateVariable2']
-
 if not TEST_MODE:
     DATA_FILES = [
     filename for filename in os.listdir(BASE_DIR/ 'DataFiles')

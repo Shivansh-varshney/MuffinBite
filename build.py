@@ -1,11 +1,13 @@
 import os
 import sys
+import csv
 import subprocess
 from pathlib import Path
 
 env_dir = Path("environment")
-dirs_to_create = ["Attachments", "DataFiles", "EmailStatus", "Logs"]
+dirs_to_create = ["Attachments", "DataFiles", "EmailStatus", "logs"]
 requirements_file = "requirements.txt"
+file_names = ['successful_emails.csv', 'failed_emails.csv']
 
 def log_error(msg):
     print(f"[ERROR] {msg}", file=sys.stderr)
@@ -15,7 +17,7 @@ def create_virtualenv():
         print("\nCreating virtual environment...")
         subprocess.check_call([sys.executable, "-m", "venv", str(env_dir)])
     else:
-        print("Virtual environment already exists.")
+        print("\nVirtual environment already exists.")
 
 def install_requirements():
     print("\nInstalling dependencies...")
@@ -29,23 +31,46 @@ def install_requirements():
                           stderr=subprocess.DEVNULL)
     
 def create_directories():
-    print("\nCreating directories...\n")
+    print("\nChecking for directories...\n")
     for dir_name in dirs_to_create:
         path = Path(dir_name)
-        path.mkdir(exist_ok=True)
-        print(f"Created: {path}")
-    print()
+        if not path.exists():
+            path.mkdir(exist_ok=True)
+            print(f"    Created: {path}")
+        else:
+            print(f"    {path} already exists")
+
+def create_files():
+
+    print("\nChecking for files...\n")
+    for fileName in file_names:
+        filePath = Path('EmailStatus/'+fileName)
+        if not filePath.exists():
+            try:
+                with open(filePath, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    row = ['Email', ' Date', ' Time']
+                    writer.writerow(row)
+                print(f'    Created: {fileName}')
+
+            except Exception as error:
+                log_error(f"Could not write to {filePath} due to: {error}")
+        else:
+            print(f'    {fileName} already exists')
 
 def main():
     try:
         create_virtualenv()
         install_requirements()
         create_directories()
+        create_files()
 
-        print("✅ Setup completed successfully.")
-        print(f"\n➡️  To activate the virtual environment, run:")
-        print(r"        for Windows: 'environment\\Scripts\\activate'")
-        print(r"        for Linux: 'source environment/bin/activate'")
+        print()
+        print("Setup completed successfully !!")
+        print(f"\nTo activate the virtual environment, run:")
+        print(r"    for Windows: 'environment\\Scripts\\activate'")
+        print(r"    for Linux: 'source environment/bin/activate'")
+        print()
 
     except subprocess.CalledProcessError as e:
         log_error(f"Command failed: {e}")
