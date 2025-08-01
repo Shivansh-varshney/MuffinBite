@@ -11,7 +11,7 @@ from colorama import init, Fore, Style
 
 from .googleConfiguration import Configure
 from .logger_config import logger
-from settings import BASE_DIR, ATTACHMENTS
+from settings import BASE_DIR, ATTACHMENTS, CC_EMAILS
 
 init(autoreset=True)
 
@@ -128,8 +128,11 @@ class AutoEmail():
                     if not item['Email'] or '@' not in item['Email']:
                         print(Fore.RED +f"      Invalid email: {item['Email']}\n" + Style.RESET_ALL)
                         sys.exit(1)
+
                     message['to'] = item['Email']
 
+                    if len(CC_EMAILS):
+                        message['Cc'] = ', '.join(CC_EMAILS)
 
                     # send email
                     email_sent, error = self.send_single_mail(message)

@@ -14,6 +14,8 @@ ATTACHMENTS = [
     filename for filename in os.listdir(BASE_DIR/ 'Attachments')
 ]
 
+CC_EMAILS = ['exampleEmailAddress@gmail.com', 'exampleEmailAddress2@gmail.com']
+
 if not TEST_MODE:
     DATA_FILES = [
     filename for filename in os.listdir(BASE_DIR/ 'DataFiles')
