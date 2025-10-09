@@ -1,11 +1,6 @@
 __pycache__
-environment
-
-*.json
-
-Attachments/*
-DataFiles/*
-logs/*
-EmailStatus/*
-main.py
-settings.py
+environment/
+__pycache__/*
+*.egg-info/
+build/
+dist/
