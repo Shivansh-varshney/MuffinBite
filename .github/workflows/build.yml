@@ -39,7 +39,7 @@ jobs:
           fi
 
       - name: Upload executables
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MuffinBite-${{ runner.os }}
           path: dist/*
