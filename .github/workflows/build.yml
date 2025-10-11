@@ -28,19 +28,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller
 
-      - name: Build MuffinBite executable
-        run: |
-          echo "Building for ${{ runner.os }}"
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            pyinstaller --onefile --name MuffinBite-linux muffinbite/management/cli.py
-          else
-            pyinstaller --onefile --name MuffinBite-mac muffinbite/management/cli.py
-          fi
-          
+      - name: Build MuffinBite on Linux
+        if: runner.os == 'Linux'
+        run: pyinstaller --onefile --clean --name MuffinBite-linux muffinbite/management/cli.py
+
       - name: Build MuffinBite on Windows
         if: runner.os == 'Windows'
         run: pyinstaller --onefile --clean --name MuffinBite.exe muffinbite/management/cli.py
         shell: powershell
+
+      - name: Build MuffinBite on Mac
+        if: runner.os == 'macOS'
+        run: pyinstaller --onefile --clean --name MuffinBite-mac muffinbite/management/cli.py
 
       - name: Upload executables
         uses: actions/upload-artifact@v4
