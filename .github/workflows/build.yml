@@ -10,10 +10,14 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
+      - name: Clean old builds
+        run: rm -rf build/ dist/ *.spec
+        
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -31,11 +35,11 @@ jobs:
         run: |
           echo "Building for ${{ runner.os }}"
           if [ "${{ runner.os }}" == "Windows" ]; then
-            pyinstaller --onefile --name MuffinBite.exe main.py
+            pyinstaller --onefile --name MuffinBite.exe muffinbite/management/cli.py
           elif [ "${{ runner.os }}" == "Linux" ]; then
-            pyinstaller --onefile --name MuffinBite-linux main.py
+            pyinstaller --onefile --name MuffinBite-linux muffinbite/management/cli.py
           else
-            pyinstaller --onefile --name MuffinBite-mac main.py
+            pyinstaller --onefile --name MuffinBite-mac muffinbite/management/cli.py
           fi
 
       - name: Upload executables
