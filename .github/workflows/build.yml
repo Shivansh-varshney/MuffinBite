@@ -1,0 +1,45 @@
+name: Build MuffinBite Cross-Platform
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build MuffinBite executable
+        run: |
+          echo "Building for ${{ runner.os }}"
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            pyinstaller --onefile --name MuffinBite.exe main.py
+          elif [ "${{ runner.os }}" == "Linux" ]; then
+            pyinstaller --onefile --name MuffinBite-linux main.py
+          else
+            pyinstaller --onefile --name MuffinBite-mac main.py
+          fi
+
+      - name: Upload executables
+        uses: actions/upload-artifact@v3
+        with:
+          name: MuffinBite-${{ runner.os }}
+          path: dist/*
