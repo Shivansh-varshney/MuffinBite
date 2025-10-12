@@ -1,5 +1,6 @@
+import sys
 def quit():
     """
     Exit the MuffinBite
     """
-    return exit(0)
+    return sys.exit(0)

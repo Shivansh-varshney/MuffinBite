@@ -64,3 +64,6 @@ def run_cli():
             break
         except Exception as e:
             print(f"\nError: {e}\n")
+
+if __name__ == "__main__":
+    run_cli()
