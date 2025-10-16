@@ -1,7 +1,8 @@
 from pathlib import Path
 import os, sys, configparser, argparse
-from muffinbite.management.settings import session, CONFIG_FILE, CONFIG_DIR
-
+from colorama import init, Fore, Style
+from muffinbite.management.settings import CONFIG_FILE, CONFIG_DIR
+init(autoreset=True)
 config = configparser.ConfigParser()
 if os.path.exists(CONFIG_FILE):
     config.read(CONFIG_FILE)
@@ -13,7 +14,7 @@ def write_value(section, key, value):
     if section not in config:
         config.add_section(section)
     if key == "time_delay" and float(value) < 0.42:
-        print("\nTime gap can not be less than 0.42 seconds.")
+        print(Fore.RED + Style.BRIGHT +"\nTime gap can not be less than 0.42 seconds.")
         return
     
     config[section][key] = str(value)
@@ -21,14 +22,14 @@ def write_value(section, key, value):
 def show_config():
 
     if os.path.exists(CONFIG_FILE):
-        print("\nCurrent MuffinBite Configuration:\n")
+        print(Fore.GREEN + Style.BRIGHT +"\nCurrent MuffinBite Configuration:\n")
         for section in config.sections():
-            print(f"[{section}]")
+            print(Fore.BLUE + Style.BRIGHT +f"[{section}]")
             for key, value in config[section].items():
-                print(f"{key} = {value}")
+                print(Fore.YELLOW + Style.BRIGHT +f"{key} = {Fore.WHITE + Style.BRIGHT}{value}")
             print()
     else:
-        print("\nconfig not set-up, please run: build\n")
+        print(Fore.RED + Style.BRIGHT +"\nconfig not set-up, please run: build\n")
     return
 
 def signature(html):
@@ -58,13 +59,13 @@ def configure_command(*args):
     """
     Configure settings.
         Example:
-            config --user-name name                             (resets user email)
+            config --user-name name                             (resets user name)
             config --user-email firstname.lastname@example.com  (resets the user email)
             config --service-provider-name provider_name        (resets service provider name)
             config --service-provider-server server_address     (resets service provider server address)
             config --service-provider-login login               (resets service provider login ID)
             config --service-provider-port 000                  (resets service provider port number)
-            config --signature <html>                           (add signature to all the outgoing mails)
+            config --signature "<html>"                         (add signature to all the outgoing mails)
             config --signature-on                               (turn signatures ON)
             config --signature-off                              (turn signatures OFF)
             config --time-delay 0.00                            (time gap between two emails)
@@ -102,7 +103,7 @@ def configure_command(*args):
         signature_off()
 
     if not any(vars(parsed).values()):
-        print("\nError: No flags provided. Use --help to see options.\n")
+        print(Fore.RED + Style.BRIGHT +"\nError: No flags provided. Use --help to see options.\n")
         return
     
     write_value("user", "name", parsed.user_name)
@@ -119,6 +120,6 @@ def configure_command(*args):
     if any(updates.values()):
         with open(CONFIG_FILE, "w") as file:
             config.write(file)
-            print("\nConfiguration updated successfully !!\n")
+            print(Fore.GREEN + Style.BRIGHT +"\nConfiguration updated successfully !!\n")
         
         os.execv(sys.executable, [sys.executable] + sys.argv)

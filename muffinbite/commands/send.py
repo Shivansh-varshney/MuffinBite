@@ -1,12 +1,12 @@
 import argparse, configparser, os, csv
-
+from colorama import init, Fore, Style
 from muffinbite.sender.sender import Sender
 from muffinbite.management.settings import session, CONFIG_FILE
 from muffinbite.utils.helpers import get_html, get_campaign, get_text_from_html
 from muffinbite.commands.build import build
 from muffinbite.esp.smtp_esp import SmtpESP
 from muffinbite.esp.google_esp import GoogleESP
-
+init(autoreset=True)
 config = configparser.ConfigParser()
 config.read(CONFIG_FILE)
 
@@ -75,7 +75,7 @@ def create_email_structure():
 def send_test():
     
     if not session.test_data_files:
-        print("\nPlease provide test data to send emails.\n")
+        print(Fore.RED + Style.BRIGHT +"\nPlease provide test data to send emails.\n")
         return
 
     email = Sender(data_files=session.test_data_files, config=config, provider=get_esp())
@@ -84,7 +84,7 @@ def send_test():
 def send_real():
 
     if not session.data_files:
-        print("\nPlease provide data files to send emails.\n")
+        print(Fore.RED + Style.BRIGHT +"\nPlease provide data files to send emails.\n")
         return
     
     email = Sender(data_files=session.data_files, config=config, provider=get_esp())

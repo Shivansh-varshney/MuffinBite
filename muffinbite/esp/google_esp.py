@@ -1,6 +1,7 @@
 import base64
-import configparser,os
+import os
 from pathlib import Path
+from colorama import init, Fore, Style
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
@@ -8,7 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 from muffinbite.management.settings import session, CLIENT_SECRET_FILE, BASE_DIR, CONFIG_FILE, CONFIG_DIR
 from muffinbite.utils.abstracts import AbstractESP
-
+init(autoreset=True)
 SCOPES = {
     "ACTION_COMPOSE": "https://www.googleapis.com/auth/gmail.addons.current.action.compose",
     "MESSAGE_ACTION": "https://www.googleapis.com/auth/gmail.addons.current.message.action",
@@ -58,7 +59,7 @@ class GoogleESP(AbstractESP):
         creds = None
 
         if not os.path.exists(CLIENT_SECRET_FILE):
-            print(f"""
+            print(Fore.YELLOW + Style.BRIGHT +f"""
 \tPlease provide default credentials via, `credentials.json` file in the {BASE_DIR},
 \tYou can get it from google cloud console for gmail api.
 \tFor further details, please visit: https://console.cloud.google.com/ and search for Gmail API

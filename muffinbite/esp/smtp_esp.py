@@ -1,8 +1,8 @@
 import smtplib, pwinput, configparser
-
+from colorama import init, Fore, Style
 from muffinbite.utils.abstracts import AbstractESP
 from muffinbite.management.settings import session, CONFIG_FILE
-
+init(autoreset=True)
 class SmtpESP(AbstractESP):
 
     def __init__(self):
@@ -45,4 +45,4 @@ class SmtpESP(AbstractESP):
             if session.debug:
                 session.logger.error(f"Error: {error}\n\n")
 
-            print("\nError: ", error)
+            print(Fore.RED + Style.BRIGHT +"\nError: ", error)

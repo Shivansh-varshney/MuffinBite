@@ -1,8 +1,15 @@
+from pathlib import Path
 import os, configparser, argparse
 from prompt_toolkit import prompt
-from pathlib import Path
-
+from colorama import Fore, Style, init
+from prompt_toolkit.styles import Style as promptStyle
 from muffinbite.utils.helpers import only_alnum, chain_validators, campaign_exists, argparse_alnum_validator
+
+init(autoreset=True)
+style = promptStyle.from_dict({
+    'prompt': 'ansiyellow bold',
+    '': 'ansigreen bold'             
+})
 
 campaign_name_validator = chain_validators([
     only_alnum,
@@ -21,14 +28,14 @@ def create():
     config = configparser.ConfigParser()
     campaigns_dir = "./Campaigns"
 
-    campaign_name = prompt("Enter name for the campaign: ", validator=campaign_name_validator)
+    campaign_name = prompt(f"\nEnter name for the campaign: ", style=style, validator=campaign_name_validator)
     campaign_file = os.path.join(campaigns_dir, campaign_name + ".ini")
-
-    subject = prompt("Enter subject line for the email: ", validator=only_alnum_validator)
-    template = prompt("Enter template name you want to use: ", validator=only_alnum_validator)
-    attachments = input("Enter attachments, (separated by commas if more than one): ")
-    cc_emails = input("Enter CC emails, (separated by commas if more than one): ")
-    bcc_emails = input("Enter BCC emails, (separated by commas if more than one): ")
+    subject = prompt(f"\nEnter subject line for the email: ", style=style, validator=only_alnum_validator)
+    template = prompt(f"\nEnter template name you want to use: ", style=style, validator=only_alnum_validator)
+    attachments = prompt("\nEnter attachments, (separated by commas if more than one): ", style=style)
+    cc_emails = prompt("\nEnter CC emails, (separated by commas if more than one): ", style=style)
+    bcc_emails = prompt("\nEnter BCC emails, (separated by commas if more than one): ", style=style)
+    print()
 
     config['campaign'] = {
         'name': campaign_name, 
@@ -52,13 +59,20 @@ def read(campaign):
     file = campaign_dir + campaign + ".ini"
 
     if os.path.exists(file):
-        with open(file, 'r') as file:
-            content = file.read()
-        print(f"\nDetails for: {campaign}\n")
-        print(content)
+        # with open(file, 'r') as file:
+        #     content = file.read()
+        # print(content)
+        config = configparser.ConfigParser()
+        config.read(file)
+        for section in config.sections():
+            print(Fore.GREEN + Style.BRIGHT + f"\nDetails for: {campaign}\n")
+            print(Fore.BLUE + Style.BRIGHT +f"[{section}]")
+            for key, value in config[section].items():
+                print(Fore.YELLOW + Style.BRIGHT +f"{key} = {Fore.WHITE + Style.BRIGHT}{value}")
+            print()
     
     else:
-        print("\nCampaign not found.\n")
+        print(Fore.RED + Style.BRIGHT +"\nCampaign not found.\n")
 
 def delete(campaign):
     """
@@ -70,19 +84,19 @@ def delete(campaign):
     
     if os.path.exists(file):
         os.remove(file)
-        print("\nCampaign deleted successfully!!\n")
+        print(Fore.GREEN + Style.BRIGHT +"\nCampaign deleted successfully!!\n")
     else:
-        print("\nCampaign not found.\n")
+        print(Fore.RED + Style.BRIGHT +"\nCampaign not found.\n")
 
 def read_list():
     """
     list all the campaigns available
     """
-    print("\nAll the available campaigns:\n")
+    print(Fore.GREEN + Style.BRIGHT +"\nAll the available campaigns:\n")
     campaign_dir = Path("./Campaigns")
-    for file in campaign_dir.iterdir():
+    for index, file in enumerate(campaign_dir.iterdir(), start=1):
         if file.is_file():
-            print(f"\t{file.stem}")
+            print(Fore.YELLOW + Style.BRIGHT +f"\t{index}. {file.stem}")
     
     print()
 

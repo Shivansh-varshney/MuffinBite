@@ -3,9 +3,16 @@ from bs4 import BeautifulSoup
 import os, re, argparse, sys, configparser
 
 from muffinbite.management.settings import CONFIG_DIR, CONFIG_FILE
-
+from colorama import init, Fore, Style
 from prompt_toolkit import prompt
+from prompt_toolkit.styles import Style as promptStyle
 from prompt_toolkit.validation import Validator, ValidationError
+
+init(autoreset=True)
+style = promptStyle.from_dict({
+    "prompt": "ansiyellow bold",
+    "": "ansigreen bold"
+})
 
 dirs_to_create = ["Attachments", "DataFiles", "EmailStatus", "Templates", "Campaigns"]
 
@@ -64,7 +71,7 @@ def get_campaign():
         campaign_does_not_exists
     ])
 
-    campaign_name = prompt("\nEnter the campaign name you want to use: ", validator=validator)
+    campaign_name = prompt("\nEnter the campaign name you want to use: ", style=style, validator=validator)
 
     FILE = os.path.join(DIR, campaign_name + '.ini')
 
@@ -110,25 +117,25 @@ def setup_user_config():
         config.read(CONFIG_FILE)
 
     if 'user' not in config or 'name' not in config['user'] or 'email' not in config['user']:
-        print("\nLet's set up your MuffinBite user info:\n")
-        name = input("Enter your name: ").strip()
-        email = input("Enter your email: ").strip()
+        print(Fore.GREEN + Style.BRIGHT +"Let's set up your MuffinBite user info:\n")
+        name = input(Fore.YELLOW + Style.BRIGHT +"Enter your name: " + Fore.GREEN + Style.BRIGHT ).strip()
+        email = input(Fore.YELLOW + Style.BRIGHT +"Enter your email: " + Fore.GREEN + Style.BRIGHT ).strip()
         config['user'] = {'name': name, 'email': email}
 
     if 'email' not in config or 'provider' not in config['service_provider']:
-        print("\nChoose your email provider:")
-        print("  1. Gmail (uses OAuth token)")
-        print("  2. Other SMTP service")
-        choice = input("Provider (1 or 2): ").strip()
+        print(Fore.YELLOW + Style.BRIGHT +"\nChoose your email provider:")
+        print(Fore.YELLOW + Style.BRIGHT +f"  1. {Fore.BLUE + Style.BRIGHT}Gmail (recommended)")
+        print(Fore.YELLOW + Style.BRIGHT +f"  2. {Fore.BLUE + Style.BRIGHT}Other SMTP service")
+        choice = input(Fore.YELLOW + Style.BRIGHT +"Provider (enter 1 or 2): " + Fore.GREEN + Style.BRIGHT ).strip()
 
         if choice == '1':
             config['service_provider'] = {'provider': 'gmail'}
-            print("Gmail token will be generated separately via OAuth flow.")
+            print(Fore.GREEN + Style.BRIGHT +"\nGmail token will be generated separately via OAuth flow.")
         else:
-            provider_name = input("Enter provider name (any custom name): ").strip()
-            smtp_server = input("SMTP server (e.g., smtp.example.com): ").strip()
-            port = input("SMTP port (usually 587): ").strip()
-            login = input("Login email/username: ").strip()
+            provider_name = input(Fore.YELLOW + Style.BRIGHT +"Enter provider name (any custom name): " + Fore.GREEN + Style.BRIGHT).strip()
+            smtp_server = input(Fore.YELLOW + Style.BRIGHT +"SMTP server (e.g., smtp.example.com): " + Fore.GREEN + Style.BRIGHT).strip()
+            port = input(Fore.YELLOW + Style.BRIGHT +"SMTP port (usually 587): " + Fore.GREEN + Style.BRIGHT).strip()
+            login = input(Fore.YELLOW + Style.BRIGHT +"Login email/username: " + Fore.GREEN + Style.BRIGHT).strip()
 
             config['service_provider'] = {
                 'provider': provider_name,
@@ -146,21 +153,21 @@ def setup_user_config():
 
     with open(CONFIG_FILE, 'w') as file:
         config.write(file)
-        print("\nUser configuration saved successfully!\n")
+        print(Fore.GREEN + Style.BRIGHT +"\nUser configuration saved successfully!\n")
 
     return config
 
 def log_error(msg):
-    print(f"[ERROR] {msg}", file=sys.stderr)
+    print(Fore.RED + Style.BRIGHT +f"[ERROR] {msg}", file=sys.stderr)
    
 def create_directories():
-    print("Checking for directories...\n")
+    print(Fore.YELLOW + Style.BRIGHT +"Checking for directories...\n")
     for dir_name in dirs_to_create:
         path = Path(dir_name)
         if not path.exists():
             path.mkdir(exist_ok=True)
-            print(f"    Created: {path}")
+            print(Fore.GREEN + Style.BRIGHT +f"    Created: {Fore.BLUE + Style.BRIGHT}{path}")
         else:
-            print(f"    {path} already exists")
+            print(Fore.BLUE + Style.BRIGHT +f"    {path}{Fore.GREEN + Style.BRIGHT} already exists")
     
     print()

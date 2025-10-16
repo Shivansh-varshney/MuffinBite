@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import date
 from colorama import init, Fore, Style
 from email.message import EmailMessage
-import csv, sys, time, configparser, mimetypes, base64, re
+import csv, sys, time, configparser, mimetypes, base64, re, os
 
 from muffinbite.utils.abstracts import AbstractSender
 from muffinbite.management.settings import session, BASE_DIR, CONFIG_FILE, CONFIG_DIR
@@ -98,11 +98,12 @@ class Sender(AbstractSender):
 
         location = CONFIG_DIR+'/signatures/'+file_name
 
-        with open(location, 'r') as sign:
-            signature = sign.read()
+        if os.path.exists(location):
+            with open(location, 'r') as sign:
+                signature = sign.read()
 
-        return html_content + signature
-
+            return html_content + "\n" + signature
+        return html_content
 
     def attach(self, message, attachments):
 
@@ -133,7 +134,7 @@ class Sender(AbstractSender):
         try:
             print()
             for file in self.data_files:
-                print(Fore.GREEN+'Sending emails from: '+Fore.YELLOW+file)
+                print(Fore.GREEN + Style.BRIGHT +'Sending emails from: '+Fore.YELLOW + Style.BRIGHT +file)
                 print(Style.RESET_ALL)
 
                 data = self.read_file(file)
@@ -180,17 +181,17 @@ class Sender(AbstractSender):
 
                     if email_sent:
                         successful[index] = [item["Email"]]
-                        print(Fore.GREEN+'      sent to: '+Fore.YELLOW+item["Email"])
+                        print(Fore.GREEN + Style.BRIGHT +f'     {index + 1}. sent to: '+Fore.YELLOW + Style.BRIGHT +item["Email"])
                         print(Style.RESET_ALL)
                         del message
                     elif not email_sent:
                         writeind[index] = [item["Email"]]
-                        print(Fore.RED+'      could not send to: '+Fore.YELLOW+item["Email"])
+                        print(Fore.RED + Style.BRIGHT +f'     {index + 1}. could not send to: '+Fore.YELLOW + Style.BRIGHT +item["Email"])
                         print(Style.RESET_ALL)
                         del message
                     else:
                         if session.debug:
-                            ("\nPlease report about the error on issues tab of github.\n\n")
+                            print(Fore.RED + Style.BRIGHT +"\nPlease report about the error on issues tab of github.\n")
                     
                     time.sleep(float(config['settings']['time_delay']))
                 
@@ -199,7 +200,7 @@ class Sender(AbstractSender):
                 if len(writeind) > 0:
                     self.email_logs(writeind, kwargs['failed_emails_file'])
             
-            print(Fore.GREEN+'ALl Done !!')
+            print(Fore.GREEN+ Style.BRIGHT +'ALl Done !!')
             print(Style.RESET_ALL)
             return True
 

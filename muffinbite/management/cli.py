@@ -1,5 +1,5 @@
 import shlex, subprocess
-
+from colorama import init,Fore, Style
 from muffinbite.commands.build import build
 from muffinbite.commands.reset_config import reset_user_config
 from muffinbite.commands.campaign import campaign_command
@@ -10,16 +10,17 @@ from muffinbite.management.session_watcher import start_watcher
 from muffinbite.utils.hybridcompleter import HybridCompleter
 
 from prompt_toolkit import PromptSession
+init(autoreset=True)
 
 def help():
     """
     Shows all the available commands and their uses
     """
-    print("\nAvailable MuffinBite commands:\n")
+    print(Fore.YELLOW + Style.BRIGHT+"\nAvailable MuffinBite commands:\n")
     for name, func in COMMANDS.items():
         doc = func.__doc__.strip() if func.__doc__ else "No documentation available."
-        print(f"    {name} - {doc}\n")
-    print("Use !<command> for direct shell commands like `ls`, `clear`, `pwd`, etc.")
+        print(f"   {Fore.BLUE + Style.BRIGHT} {name} - {Fore.GREEN + Style.BRIGHT}{doc}\n")
+    print(Fore.YELLOW + Style.BRIGHT+"Use !<command> for direct shell commands like `ls`, `clear`, `pwd`, etc.")
 
 COMMANDS = {
     'build': build,
