@@ -200,7 +200,7 @@ class Sender(AbstractSender):
                 if len(writeind) > 0:
                     self.email_logs(writeind, kwargs['failed_emails_file'])
             
-            print(Fore.GREEN+ Style.BRIGHT +'ALl Done !!')
+            print(Fore.GREEN+ Style.BRIGHT +'All Done !!')
             print(Style.RESET_ALL)
             return True
 

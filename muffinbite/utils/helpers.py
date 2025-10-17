@@ -57,7 +57,7 @@ def argparse_alnum_validator(text):
         raise argparse.ArgumentTypeError("Only letters and numbers are allowed")
     return text
 
-# campagin related utility functions
+# campaign related utility functions
 def get_campaign():
     """
     Retrieves the campaign from the database

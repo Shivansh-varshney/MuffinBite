@@ -25,7 +25,7 @@ def create_email_structure():
     subject = campaign['subject_line']
     cc_emails = ''
     bcc_emails = ''
-    success_emails_file = "./EmailStatus/" + campaign['name'] + '_successfull_emails.csv'
+    success_emails_file = "./EmailStatus/" + campaign['name'] + '_successful_emails.csv'
     failed_emails_file = "./EmailStatus/" + campaign['name'] + '_failed_emails.csv'
 
     if not os.path.exists(success_emails_file):
@@ -47,11 +47,7 @@ def create_email_structure():
         build(silent=True)
         return False, None
 
-    provider = config['service_provider']['provider']
-    if provider.lower() == "gmail":
-        from_ = config['user']['email']
-    else:
-        from_ = f"{config['user']['name']} <{config['user']['email']}>"
+    from_ = f"{config['user']['name']} <{config['user']['email']}>"
     
     cc_emails = (campaign.get("cc_emails") or "").strip()
     bcc_emails = (campaign.get("bcc_emails") or "").strip()
