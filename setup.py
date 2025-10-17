@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
 
 setup(
     name='muffinbite',
-    version='0.1.3',
+    version='0.1.4',
     author='Shivansh Varshney',
     author_email='shivanshvarshney45@gmail.com',
     license="MIT",
