@@ -48,9 +48,9 @@ class Session(AbstractSession):
                 filename for filename in os.listdir(BASE_DIR/ 'DataFiles')
                 if filename.lower().startswith('test')
             ]
-                
+
         except Exception:
-            
+
             self.data_files = []
             self.test_data_files = []
 
@@ -88,5 +88,5 @@ class Session(AbstractSession):
         self.load()
         self.setup_logger()
         return self
-    
+
 session = Session()

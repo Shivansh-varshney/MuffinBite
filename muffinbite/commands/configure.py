@@ -1,8 +1,13 @@
 from pathlib import Path
-import os, sys, configparser, argparse
+from datetime import datetime
 from colorama import init, Fore, Style
+import os, sys, configparser, argparse
+
+from muffinbite.utils.helpers import load_limits, save_limits
 from muffinbite.management.settings import CONFIG_FILE, CONFIG_DIR
+
 init(autoreset=True)
+
 config = configparser.ConfigParser()
 if os.path.exists(CONFIG_FILE):
     config.read(CONFIG_FILE)
@@ -16,7 +21,18 @@ def write_value(section, key, value):
     if key == "time_delay" and float(value) < 0.42:
         print(Fore.RED + Style.BRIGHT +"\nTime gap can not be less than 0.42 seconds.")
         return
-    
+
+    if key == "email":
+        limits = load_limits()
+
+        if value not in limits:
+            limits[value] = {
+                "last_send":datetime.now().isoformat(),
+                "count": 0
+            }
+
+        save_limits(limits)
+
     config[section][key] = str(value)
 
 def show_config():
@@ -83,7 +99,7 @@ def configure_command(*args):
     parser.add_argument("--service-provider-port", type=str, help="set service provider port")
     parser.add_argument("--show", action="store_true", help="show current configuration")
     parser.add_argument("--debug", type=str, help="switch debug mode for error logs")
-    parser.add_argument("--time-delay", type=str, help="switch debug mode for error logs")
+    parser.add_argument("--time-delay", type=str, help="time gap between two emails")
     parser.add_argument("--signature", type=str, help="add signature to all the outgoing mails")
     parser.add_argument("--signature-on", action="store_true", help="turn signatures ON")
     parser.add_argument("--signature-off", action="store_true", help="turn signatures OFF")
@@ -92,7 +108,7 @@ def configure_command(*args):
         parsed = parser.parse_args(args)
     except SystemExit:
         return
-    
+
     if parsed.signature:
         signature(parsed.signature)
     elif parsed.show:
@@ -105,7 +121,7 @@ def configure_command(*args):
     if not any(vars(parsed).values()):
         print(Fore.RED + Style.BRIGHT +"\nError: No flags provided. Use --help to see options.\n")
         return
-    
+
     write_value("user", "name", parsed.user_name)
     write_value("user", "email", parsed.user_email)
     write_value("settings", "debug", parsed.debug)
@@ -121,5 +137,5 @@ def configure_command(*args):
         with open(CONFIG_FILE, "w") as file:
             config.write(file)
             print(Fore.GREEN + Style.BRIGHT +"\nConfiguration updated successfully !!\n")
-        
+
         os.execv(sys.executable, [sys.executable] + sys.argv)

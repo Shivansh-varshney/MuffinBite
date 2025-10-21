@@ -7,12 +7,12 @@ class AbstractESP(ABC):
 
     def __init__(self):
         pass
-    
+
     # get the user credentials send the messages
     @abstractmethod
     def get_credentials(self):
         pass
-    
+
     # get the actual instance which will send the email
     @abstractmethod
     def get_service(self):
@@ -27,10 +27,10 @@ class AbstractSender(ABC):
     """
     Abstract class for sender
     """
-    
+
     def __init__(self, data_files, config, provider):
         pass
-    
+
     # read the data file single time for all the instances
     @staticmethod
     def read_file(file):
@@ -40,22 +40,22 @@ class AbstractSender(ABC):
     @abstractmethod
     def send_single_mail(self, message):
         pass
-    
-    # successfull and failed email logs
+
+    # successful and failed email logs
     @abstractmethod
     def email_logs(self, data, fileName):
         pass
-    
+
     # insert all the variables in the email body from the data row
     @abstractmethod
     def format_email_body(self, body_content, row):
         pass
-    
+
     # attach any files
     @abstractmethod
     def attach(self, message):
         pass
-    
+
     # calls the send_single_mail for each row after formatting the message properly
     @abstractmethod
     def send_bulk_email(self, **kwargs):
@@ -68,7 +68,7 @@ class AbstractSession(ABC):
     def __init__(self):
         pass
 
-    # load the session variables 
+    # load the session variables
     @abstractmethod
     def load(self):
         pass

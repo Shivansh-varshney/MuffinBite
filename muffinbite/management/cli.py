@@ -1,5 +1,5 @@
 import shlex, subprocess
-from colorama import init,Fore, Style
+from colorama import init, Fore, Style
 from muffinbite.commands.build import build
 from muffinbite.commands.reset_config import reset_user_config
 from muffinbite.commands.campaign import campaign_command
@@ -59,7 +59,7 @@ def run_cli():
                 COMMANDS[cmd](*args)
             else:
                 print(f"\nUnknown command: {cmd}\n")
-                
+
         except KeyboardInterrupt:
             print("\nExiting.\n")
             break

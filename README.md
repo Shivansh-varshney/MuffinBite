@@ -49,7 +49,7 @@ It’s ideal for small businesses, marketers, or anyone looking to send large-sc
 
         config - Configure settings.
             Example:
-                config --user-name name                             (resets user email)
+                config --user-name name                             (resets user name)
                 config --user-email firstname.lastname@example.com  (resets the user email)
                 config --service-provider-name provider_name        (resets service provider name)
                 config --service-provider-server server_address     (resets service provider server address)

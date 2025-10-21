@@ -8,7 +8,7 @@ from muffinbite.utils.helpers import only_alnum, chain_validators, campaign_exis
 init(autoreset=True)
 style = promptStyle.from_dict({
     'prompt': 'ansiyellow bold',
-    '': 'ansigreen bold'             
+    '': 'ansigreen bold'
 })
 
 campaign_name_validator = chain_validators([
@@ -38,8 +38,8 @@ def create():
     print()
 
     config['campaign'] = {
-        'name': campaign_name, 
-        'subject_line': subject, 
+        'name': campaign_name,
+        'subject_line': subject,
         'template': template + '.html',
         'attachments': attachments,
         'cc_emails': cc_emails,
@@ -59,9 +59,6 @@ def read(campaign):
     file = campaign_dir + campaign + ".ini"
 
     if os.path.exists(file):
-        # with open(file, 'r') as file:
-        #     content = file.read()
-        # print(content)
         config = configparser.ConfigParser()
         config.read(file)
         for section in config.sections():
@@ -70,7 +67,7 @@ def read(campaign):
             for key, value in config[section].items():
                 print(Fore.YELLOW + Style.BRIGHT +f"{key} = {Fore.WHITE + Style.BRIGHT}{value}")
             print()
-    
+
     else:
         print(Fore.RED + Style.BRIGHT +"\nCampaign not found.\n")
 
@@ -81,7 +78,7 @@ def delete(campaign):
 
     campaigns_dir = "./Campaigns/"
     file = campaigns_dir + campaign + '.ini'
-    
+
     if os.path.exists(file):
         os.remove(file)
         print(Fore.GREEN + Style.BRIGHT +"\nCampaign deleted successfully!!\n")
@@ -97,7 +94,7 @@ def read_list():
     for index, file in enumerate(campaign_dir.iterdir(), start=1):
         if file.is_file():
             print(Fore.YELLOW + Style.BRIGHT +f"\t{index}. {file.stem}")
-    
+
     print()
 
 def campaign_command(*args):
@@ -131,10 +128,10 @@ def campaign_command(*args):
     if parsed.delete:
         campaign = parsed.delete
         delete(campaign)
-    
+
     if parsed.list:
         read_list()
-    
+
     if parsed.show:
         campaign = parsed.show
         read(campaign)

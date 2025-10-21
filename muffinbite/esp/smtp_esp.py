@@ -1,8 +1,7 @@
 import smtplib, pwinput, configparser
-from colorama import init, Fore, Style
 from muffinbite.utils.abstracts import AbstractESP
 from muffinbite.management.settings import session, CONFIG_FILE
-init(autoreset=True)
+
 class SmtpESP(AbstractESP):
 
     def __init__(self):
@@ -12,7 +11,7 @@ class SmtpESP(AbstractESP):
 
         config = configparser.ConfigParser()
         config.read(CONFIG_FILE)
-        
+
         service_provider = config['service_provider']
 
         provider = service_provider['provider']
@@ -23,9 +22,9 @@ class SmtpESP(AbstractESP):
         password = pwinput.pwinput(f"\tEnter password for {server}: ", mask="*")
 
         return provider, server, port, login, password
-    
+
     def get_service(self):
-        
+
         provider, server, port, login, password = self.get_credentials()
 
         self.service = smtplib.SMTP(server, port)
@@ -40,9 +39,10 @@ class SmtpESP(AbstractESP):
             self.get_service()
         try:
             self.service.send_message(message)
-            return True, None
+            return True, None, None
+
         except Exception as error:
             if session.debug:
-                session.logger.error(f"Error: {error}\n\n")
+                session.logger.error(f"Error: {error}\n")
 
-            print(Fore.RED + Style.BRIGHT +"\nError: ", error)
+            return True, None, None

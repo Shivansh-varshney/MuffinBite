@@ -1,19 +1,21 @@
 from pathlib import Path
 from bs4 import BeautifulSoup
-import os, re, argparse, sys, configparser
+import os, re, argparse, sys, json, configparser
 
-from muffinbite.management.settings import CONFIG_DIR, CONFIG_FILE
-from colorama import init, Fore, Style
 from prompt_toolkit import prompt
+from colorama import init, Fore, Style
 from prompt_toolkit.styles import Style as promptStyle
 from prompt_toolkit.validation import Validator, ValidationError
+from muffinbite.management.settings import CONFIG_DIR, CONFIG_FILE
 
 init(autoreset=True)
+
 style = promptStyle.from_dict({
     "prompt": "ansiyellow bold",
     "": "ansigreen bold"
 })
 
+LIMITS_FILE = Path(CONFIG_DIR) / "limits.json"
 dirs_to_create = ["Attachments", "DataFiles", "EmailStatus", "Templates", "Campaigns"]
 
 # validation related utility functions
@@ -22,7 +24,7 @@ def campaign_does_not_exists(text):
     Throws error if the entered campaign name is not found
     """
     path = "./Campaigns"
-    
+
     if not os.path.exists(os.path.join(path, text + '.ini')):
         raise ValidationError(message="No campaign with that name")
 
@@ -78,15 +80,15 @@ def get_campaign():
     if os.path.exists(FILE):
         config.read(FILE)
         return config['campaign']
-    
-    return 
-    
+
+    return
+
 def get_html(template):
 
     """
     Retrieves the html content from the template file
     """
-    
+
     with open(f"./Templates/{template}", 'r') as file:
         content = file.read()
 
@@ -143,7 +145,7 @@ def setup_user_config():
                 'port': port,
                 'login': login,
             }
-    
+
     if 'settings' not in config:
         config['settings'] = {
             'debug': False,
@@ -159,7 +161,7 @@ def setup_user_config():
 
 def log_error(msg):
     print(Fore.RED + Style.BRIGHT +f"[ERROR] {msg}", file=sys.stderr)
-   
+
 def create_directories():
     print(Fore.YELLOW + Style.BRIGHT +"Checking for directories...\n")
     for dir_name in dirs_to_create:
@@ -169,5 +171,15 @@ def create_directories():
             print(Fore.GREEN + Style.BRIGHT +f"    Created: {Fore.BLUE + Style.BRIGHT}{path}")
         else:
             print(Fore.BLUE + Style.BRIGHT +f"    {path}{Fore.GREEN + Style.BRIGHT} already exists")
-    
+
     print()
+
+def load_limits():
+    if not LIMITS_FILE.exists():
+        return {}
+    with open(LIMITS_FILE, "r") as f:
+        return json.load(f)
+
+def save_limits(limits):
+    with open(LIMITS_FILE, "w") as f:
+        json.dump(limits, f, indent=4)

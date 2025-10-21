@@ -1,11 +1,12 @@
 import pandas as pd
 from pathlib import Path
-from datetime import date
 from colorama import init, Fore, Style
 from email.message import EmailMessage
+from datetime import date, datetime, timedelta
 import csv, sys, time, configparser, mimetypes, base64, re, os
 
 from muffinbite.utils.abstracts import AbstractSender
+from muffinbite.utils.helpers import load_limits, save_limits
 from muffinbite.management.settings import session, BASE_DIR, CONFIG_FILE, CONFIG_DIR
 
 init(autoreset=True)
@@ -13,7 +14,7 @@ config = configparser.ConfigParser()
 config.read(CONFIG_FILE)
 
 class Sender(AbstractSender):
-    
+
     def __init__(self, data_files, config, provider):
         self.data_files = data_files
         self.config = config
@@ -40,15 +41,37 @@ class Sender(AbstractSender):
         try:
 
             esp = self.provider
-            esp.send(message)
+            user_email = self.config['user']['email']
+            limits = load_limits()
+            count = limits[user_email]["count"]
+
+            if config['service_provider']['provider'].lower() == "gmail":
+
+                if count == 500 and (datetime.now() - datetime.fromisoformat(limits[user_email]['last_send']) < timedelta(hours=24)):
+                    print(Fore.RED + Style.BRIGHT + "     Mail sending Limit reached! Please try again after 24 hours.\n")
+                    return False, None, None
+
+                if datetime.now() - datetime.fromisoformat(limits[user_email]['last_send']) > timedelta(hours=24):
+                    limits[user_email]['count'] = 0
+                    save_limits(limits)
+
+                sent, id, threadId = esp.send(message)
+                if sent:
+                    limits[user_email]["count"] += 1
+                    limits[user_email]["last_send"] = datetime.now().isoformat()
+                    save_limits(limits)
+
+            else:
+                print(Fore.YELLOW + Style.BRIGHT +"     else condition matched")
+                sent, id, threadId = esp.send(message)
 
             del message["to"]
-            return True, None
-        
+            return sent, id, threadId
+
         except Exception as error:
             if session.debug:
-                session.logger.error(f"\nEmail could not be sent to because: {error}\n\n", exc_info=True)
-            return False, error
+                session.logger.error(f"\nEmail could not be sent to because: {error}\n", exc_info=True)
+            return False, None, None
 
     def email_logs(self, data, file):
         try:
@@ -57,6 +80,8 @@ class Sender(AbstractSender):
                 for key, value in data.items():
                     row = [
                         value[0],
+                        value[1],
+                        value[2],
                         f" {date.today()}",
                         f" {time.strftime("%I:%M:%S %p", time.localtime())}"
                     ]
@@ -64,7 +89,7 @@ class Sender(AbstractSender):
 
         except Exception as error:
             if session.debug:
-                session.logger.error(f"\nCould not write to {file} due to: {error}\n\n", exc_info=True)
+                session.logger.error(f"\nCould not write to {file} due to: {error}\n", exc_info=True)
 
     def embed_images(self, html):
         def replace_img_src(match):
@@ -92,7 +117,7 @@ class Sender(AbstractSender):
         return re.sub(r"\{\{\s*(\w+)\s*\}\}", replacer, body_content)
 
     def add_signature(self, html_content):
-        
+
         email = config['user']['email']
         file_name = email.replace("@", "_at_").replace(".", "_") + ".html"
 
@@ -110,7 +135,7 @@ class Sender(AbstractSender):
         if len(attachments):
             for file in attachments.split(","):
                 location = BASE_DIR/"Attachments"/(file.strip())
-                with open(location, "rb") as file:         
+                with open(location, "rb") as file:
                     file_data = file.read()
                     file_name = file.name
                     file_type, _ = mimetypes.guess_type(file_name)
@@ -138,15 +163,12 @@ class Sender(AbstractSender):
                 print(Style.RESET_ALL)
 
                 data = self.read_file(file)
-            
-                successful = {}
-                writeind = {}
 
+                successful = {}
                 body_content = kwargs['body_content']
-                
+
                 for index, item in data.iterrows():
 
-                    # structure message
                     message = EmailMessage()
                     message['subject'] = self.format_email_body(kwargs['subject'], item)
                     message['from'] = kwargs['from_']
@@ -176,34 +198,25 @@ class Sender(AbstractSender):
                         sys.exit(1)
                     message['to'] = item['Email']
 
-                    # send email
-                    email_sent, error = self.send_single_mail(message)
+                    email_sent, id, threadId = self.send_single_mail(message)
 
                     if email_sent:
-                        successful[index] = [item["Email"]]
-                        print(Fore.GREEN + Style.BRIGHT +f'     {index + 1}. sent to: '+Fore.YELLOW + Style.BRIGHT +item["Email"])
-                        print(Style.RESET_ALL)
+                        successful[index] = [id, threadId, item["Email"]]
+                        print(Fore.GREEN + Style.BRIGHT +f'     {index + 1}. sent to: '+Fore.YELLOW + Style.BRIGHT +item["Email"], end="\n\n")
                         del message
                     elif not email_sent:
-                        writeind[index] = [item["Email"]]
-                        print(Fore.RED + Style.BRIGHT +f'     {index + 1}. could not send to: '+Fore.YELLOW + Style.BRIGHT +item["Email"])
-                        print(Style.RESET_ALL)
+                        print(Fore.RED + Style.BRIGHT +f'     {index + 1}. could not send to: '+Fore.YELLOW + Style.BRIGHT +item["Email"], end="\n\n")
                         del message
-                    else:
-                        if session.debug:
-                            print(Fore.RED + Style.BRIGHT +"\nPlease report about the error on issues tab of github.\n")
-                    
+                        break
+
                     time.sleep(float(config['settings']['time_delay']))
-                
+
                 self.email_logs(successful, kwargs['success_emails_file'])
-                
-                if len(writeind) > 0:
-                    self.email_logs(writeind, kwargs['failed_emails_file'])
-            
-            print(Fore.GREEN+ Style.BRIGHT +'All Done !!')
+
+            print(Fore.GREEN+ Style.BRIGHT +'\nAll Done !!')
             print(Style.RESET_ALL)
             return True
 
         except Exception as error:
             if session.debug:
-                session.logger.error(f"\nProgram could not start because: {error}\n\n", exc_info=True)
+                session.logger.error(f"\nProgram could not start because: {error}\n", exc_info=True)

@@ -2,7 +2,9 @@ import subprocess, os, sys
 from colorama import init, Fore, Style
 from muffinbite.utils.helpers import create_directories, setup_user_config, log_error
 from muffinbite.management.settings  import CLIENT_SECRET_FILE, BASE_DIR
+
 init(autoreset=True)
+
 def build(silent=False):
     """
     Create the necessary directories and files for the working of the project

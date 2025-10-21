@@ -1,15 +1,17 @@
-import base64
-import os
+import os, base64
 from pathlib import Path
 from colorama import init, Fore, Style
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-from muffinbite.management.settings import session, CLIENT_SECRET_FILE, BASE_DIR, CONFIG_FILE, CONFIG_DIR
 from muffinbite.utils.abstracts import AbstractESP
+from muffinbite.management.settings import session, CLIENT_SECRET_FILE, BASE_DIR, CONFIG_DIR
+
 init(autoreset=True)
+
 SCOPES = {
     "ACTION_COMPOSE": "https://www.googleapis.com/auth/gmail.addons.current.action.compose",
     "MESSAGE_ACTION": "https://www.googleapis.com/auth/gmail.addons.current.message.action",
@@ -35,17 +37,17 @@ class GoogleESP(AbstractESP):
         self.service = ''
         self.config = config
         self.token_path = self.get_token_path()
-    
+
     def get_token_path(self):
         """
         Returns the token path based on the email stored in the config file.
-        Falls back to 'default.json' if no email is set.
+        Falls back to '' if no email is set.
         """
 
         email = self.config.get("user", "email", fallback=None)
 
         # sanitize email for filename
-        token_name = "default.json"
+        token_name = ""
         if email:
             token_name = email.replace("@", "_at_").replace(".", "_") + ".json"
 
@@ -60,9 +62,9 @@ class GoogleESP(AbstractESP):
 
         if not os.path.exists(CLIENT_SECRET_FILE):
             print(Fore.YELLOW + Style.BRIGHT +f"""
-\tPlease provide default credentials via, `credentials.json` file in the {BASE_DIR},
-\tYou can get it from google cloud console for gmail api.
-\tFor further details, please visit: https://console.cloud.google.com/ and search for Gmail API
+     Please provide default credentials via, `credentials.json` file in the {BASE_DIR},
+     You can get it from google cloud console for gmail api.
+     For further details, please visit: https://muffinbite.dev/docs/requirements/ and search for Gmail API
 """)
             return False
         if os.path.exists(self.token_path):
@@ -94,13 +96,20 @@ class GoogleESP(AbstractESP):
             service = self.get_service()
 
             if not service:
-                return False, "Could not initialize Gmail service"
+                return False, None, None
         try:
             encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-            is_email_sent = self.service.users().messages().send(userId='me', body={'raw': encoded_message}).execute()
+            response = self.service.users().messages().send(userId='me', body={'raw': encoded_message}).execute()
 
-            return True, None
+            if response['labelIds'][0] == "SENT":
+                return True, response['id'], response['threadId']
+
+        except HttpError as error:
+            print(Fore.RED + Style.BRIGHT + "     Mail sending Limit reached! Please try again after 24 hours.\n")
+            return False, None, None
+
         except Exception as error:
             if session.debug:
-                session.logger.error(f"Error: {error}\n\n")
-            return False, error
+                session.logger.error(f"Error: {error}\n")
+
+            return False, None, None

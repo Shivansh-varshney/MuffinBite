@@ -1,24 +1,26 @@
 import argparse, configparser, os, csv
 from colorama import init, Fore, Style
+
 from muffinbite.sender.sender import Sender
-from muffinbite.management.settings import session, CONFIG_FILE
-from muffinbite.utils.helpers import get_html, get_campaign, get_text_from_html
 from muffinbite.commands.build import build
 from muffinbite.esp.smtp_esp import SmtpESP
 from muffinbite.esp.google_esp import GoogleESP
+from muffinbite.management.settings import session, CONFIG_FILE
+from muffinbite.utils.helpers import get_html, get_campaign, get_text_from_html
+
 init(autoreset=True)
 config = configparser.ConfigParser()
 config.read(CONFIG_FILE)
 
 def get_esp():
-        
+
         provider = config['service_provider']['provider']
 
         if provider.lower() == "gmail":
             return GoogleESP(config=config)
         else:
             return SmtpESP()
-    
+
 def create_email_structure():
 
     campaign = get_campaign()
@@ -26,18 +28,11 @@ def create_email_structure():
     cc_emails = ''
     bcc_emails = ''
     success_emails_file = "./EmailStatus/" + campaign['name'] + '_successful_emails.csv'
-    failed_emails_file = "./EmailStatus/" + campaign['name'] + '_failed_emails.csv'
 
     if not os.path.exists(success_emails_file):
         with open(success_emails_file, 'w') as file:
             writer = csv.writer(file)
-            row = ["Email", "Date", "Time"]
-            writer.writerow(row)
-    
-    if not os.path.exists(failed_emails_file):
-        with open(failed_emails_file, 'w') as file:
-            writer = csv.writer(file)
-            row = ["Email", "Date", "Time"]
+            row = ["Id", "ThreadId", "Email", "Date", "Time"]
             writer.writerow(row)
 
     config = configparser.ConfigParser()
@@ -48,7 +43,7 @@ def create_email_structure():
         return False, None
 
     from_ = f"{config['user']['name']} <{config['user']['email']}>"
-    
+
     cc_emails = (campaign.get("cc_emails") or "").strip()
     bcc_emails = (campaign.get("bcc_emails") or "").strip()
     attachments = (campaign.get("attachments") or "").strip()
@@ -64,12 +59,11 @@ def create_email_structure():
         "cc_emails": cc_emails,
         "bcc_emails": bcc_emails,
         "attachments":attachments,
-        "success_emails_file": success_emails_file,
-        "failed_emails_file": failed_emails_file,
+        "success_emails_file": success_emails_file
     }
 
 def send_test():
-    
+
     if not session.test_data_files:
         print(Fore.RED + Style.BRIGHT +"\nPlease provide test data to send emails.\n")
         return
@@ -82,14 +76,14 @@ def send_real():
     if not session.data_files:
         print(Fore.RED + Style.BRIGHT +"\nPlease provide data files to send emails.\n")
         return
-    
+
     email = Sender(data_files=session.data_files, config=config, provider=get_esp())
     email.send_bulk_email(**create_email_structure())
 
 def send_command(*args):
 
     """
-    Sends emails 
+    Sends emails
         Example:
             send --test (sends emails from test data)
             send --real (sends emails from real data)
@@ -106,7 +100,7 @@ def send_command(*args):
 
     except SystemExit:
         return
-    
+
     if parsed.test:
         send_test()
 

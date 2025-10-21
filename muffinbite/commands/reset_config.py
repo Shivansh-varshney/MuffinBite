@@ -1,7 +1,9 @@
 import os
 from colorama import init, Fore, Style
 from muffinbite.management.settings import CONFIG_FILE
+
 init(autoreset=True)
+
 def reset_user_config():
     """
     Deletes the config file
