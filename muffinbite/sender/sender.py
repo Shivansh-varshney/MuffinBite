@@ -83,7 +83,7 @@ class Sender(AbstractSender):
                         value[1],
                         value[2],
                         f" {date.today()}",
-                        f" {time.strftime("%I:%M:%S %p", time.localtime())}"
+                        f" {time.strftime('%I:%M:%S %p', time.localtime())}"
                     ]
                     writer.writerow(row)
 
