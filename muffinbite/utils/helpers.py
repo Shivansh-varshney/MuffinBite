@@ -125,7 +125,7 @@ def setup_user_config():
         config['user'] = {'name': name, 'email': email}
 
     if 'email' not in config or 'provider' not in config['service_provider']:
-        print(Fore.YELLOW + Style.BRIGHT +"\nChoose your email provider:")
+        print(Fore.YELLOW + Style.BRIGHT +"Choose your email provider:")
         print(Fore.YELLOW + Style.BRIGHT +f"  1. {Fore.BLUE + Style.BRIGHT}Gmail (recommended)")
         print(Fore.YELLOW + Style.BRIGHT +f"  2. {Fore.BLUE + Style.BRIGHT}Other SMTP service")
         choice = input(Fore.YELLOW + Style.BRIGHT +"Provider (enter 1 or 2): " + Fore.GREEN + Style.BRIGHT ).strip()

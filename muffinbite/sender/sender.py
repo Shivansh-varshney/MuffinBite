@@ -121,7 +121,7 @@ class Sender(AbstractSender):
         email = config['user']['email']
         file_name = email.replace("@", "_at_").replace(".", "_") + ".html"
 
-        location = CONFIG_DIR+'/signatures/'+file_name
+        location = Path(CONFIG_DIR)/'signatures'/file_name
 
         if os.path.exists(location):
             with open(location, 'r') as sign:
@@ -213,7 +213,7 @@ class Sender(AbstractSender):
 
                 self.email_logs(successful, kwargs['success_emails_file'])
 
-            print(Fore.GREEN+ Style.BRIGHT +'\nAll Done !!')
+            print(Fore.GREEN+ Style.BRIGHT +'All Done !!')
             print(Style.RESET_ALL)
             return True
 

@@ -1,4 +1,4 @@
-import shlex, subprocess
+import shlex, subprocess, platform
 from colorama import init, Fore, Style
 from muffinbite.commands.build import build
 from muffinbite.commands.reset_config import reset_user_config
@@ -20,7 +20,19 @@ def help():
     for name, func in COMMANDS.items():
         doc = func.__doc__.strip() if func.__doc__ else "No documentation available."
         print(f"   {Fore.BLUE + Style.BRIGHT} {name} - {Fore.GREEN + Style.BRIGHT}{doc}\n")
-    print(Fore.YELLOW + Style.BRIGHT+"Use !<command> for direct shell commands like `ls`, `clear`, `pwd`, etc.")
+    
+    print(Fore.YELLOW + Style.BRIGHT+"    Use !<command> for direct shell commands like `ls`, `clear`, `pwd`, etc.")
+    
+    print(Fore.YELLOW + Style.BRIGHT+"""
+    Shell commands (!command):
+    - Uses the system shell
+    - Linux/macOS: bash or zsh
+    - Windows: cmd.exe or PowerShell
+    - Command syntax differs by OS
+
+    Examples:
+    Linux/macOS: !ls, !clear
+    Windows: !dir, !cls\n""")
 
 COMMANDS = {
     'build': build,
@@ -34,7 +46,9 @@ COMMANDS = {
 
 def run_cli():
 
-    start_watcher()
+    if platform.system() == "Linux":
+        start_watcher()
+        
     prompt = PromptSession(completer=HybridCompleter())
 
     while True:

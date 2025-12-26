@@ -1,4 +1,4 @@
-import subprocess, os, sys
+import subprocess, os, sys, platform
 from colorama import init, Fore, Style
 from muffinbite.utils.helpers import create_directories, setup_user_config, log_error
 from muffinbite.management.settings  import CLIENT_SECRET_FILE, BASE_DIR
@@ -23,7 +23,11 @@ def build(silent=False):
 \tYou can get it from google cloud console for gmail api.
 \tFor further details, please visit: https://console.cloud.google.com/ and search for Gmail API
 """)
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        if platform.system() == "Linux":
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+        else:
+            print(Fore.GREEN + Style.BRIGHT +"Please restart CLI to apply changes!!\n")
+            return
 
     except subprocess.CalledProcessError as e:
         log_error(Fore.RED + Style.BRIGHT +f"Command failed: {e}")

@@ -1,10 +1,10 @@
 from pathlib import Path
 from datetime import datetime
 from colorama import init, Fore, Style
-import os, sys, configparser, argparse
+import os, sys, configparser, argparse, platform
 
 from muffinbite.utils.helpers import load_limits, save_limits
-from muffinbite.management.settings import CONFIG_FILE, CONFIG_DIR, session
+from muffinbite.management.settings import CONFIG_FILE, CONFIG_DIR
 
 init(autoreset=True)
 
@@ -136,6 +136,10 @@ def configure_command(*args):
     if any(updates.values()):
         with open(CONFIG_FILE, "w") as file:
             config.write(file)
-            print(Fore.GREEN + Style.BRIGHT +"\nConfiguration updated successfully !!\n")
+        print(Fore.GREEN + Style.BRIGHT +"\nConfiguration updated successfully !!\n")
 
-        session.refresh()
+        if platform.system() == "Linux":
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+        else:
+            print(Fore.GREEN + Style.BRIGHT +"Please restart CLI to apply changes!!\n")
+            return

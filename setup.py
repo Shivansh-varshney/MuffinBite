@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
 
 setup(
     name='muffinbite',
-    version='0.1.8',
+    version='0.1.14',
     author='Shivansh Varshney',
     author_email='shivanshvarshney45@gmail.com',
     license="MIT",
@@ -28,8 +28,12 @@ setup(
     "Maintainer": "https://www.shivanshvarshney.tech/"
     },
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: MacOS",
         "Environment :: Console",
         "Topic :: Communications :: Email",
         "Topic :: Utilities"
@@ -42,5 +46,5 @@ setup(
         "smtp",
         "campaigns"
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.10, <3.13',
 )

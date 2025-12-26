@@ -43,7 +43,7 @@ def create():
         'template': template + '.html',
         'attachments': attachments,
         'cc_emails': cc_emails,
-        'bcc_email': bcc_emails
+        'bcc_emails': bcc_emails
     }
 
     with open(campaign_file, 'w') as file:
