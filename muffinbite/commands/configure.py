@@ -4,7 +4,7 @@ from colorama import init, Fore, Style
 import os, sys, configparser, argparse
 
 from muffinbite.utils.helpers import load_limits, save_limits
-from muffinbite.management.settings import CONFIG_FILE, CONFIG_DIR
+from muffinbite.management.settings import CONFIG_FILE, CONFIG_DIR, session
 
 init(autoreset=True)
 
@@ -138,4 +138,4 @@ def configure_command(*args):
             config.write(file)
             print(Fore.GREEN + Style.BRIGHT +"\nConfiguration updated successfully !!\n")
 
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        session.refresh()

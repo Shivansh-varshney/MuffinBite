@@ -83,8 +83,13 @@ class Session(AbstractSession):
         logger.addHandler(file_handler)
 
         self.logger = logger
+    def reload_config(self):
+        config.clear()
+        if os.path.exists(CONFIG_FILE):
+            config.read(CONFIG_FILE)
 
     def refresh(self):
+        self.reload_config()
         self.load()
         self.setup_logger()
         return self
